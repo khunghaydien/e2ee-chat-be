@@ -97,6 +97,7 @@
     ],
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/conversations(|/.*)$": "<rootDir>/libs/conversations/src/$1",
       "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1",
       "^@app/users(|/.*)$": "<rootDir>/libs/users/src/$1"
     }

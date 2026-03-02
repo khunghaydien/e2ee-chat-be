@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { UserEntity } from '@app/database';
+import { ConversationsModule } from './conversations/conversations.module';
 import 'dotenv/config';
 
 @Module({
@@ -21,6 +22,7 @@ import 'dotenv/config';
     }),
     UsersModule,
     AuthModule,
+    ConversationsModule,
   ],
   providers: [ApiService],
 })
