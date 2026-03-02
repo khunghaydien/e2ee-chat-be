@@ -36,13 +36,16 @@ export class UsersService {
       throw new ConflictException('User name already registered');
     }
     const hashed = await bcrypt.hash(dto.password, SALT_ROUNDS);
-    const publicKey = await bcrypt.hash(dto.publicKey, SALT_ROUNDS);
-    const user = this.userRepo.create({ userName: dto.userName, password: hashed, publicKey: publicKey });
+    const user = this.userRepo.create({
+      userName: dto.userName,
+      password: hashed,
+      publicKey: dto.publicKey,
+    });
     return this.userRepo.save(user);
   }
 
   /**
-   * Danh sách user: search gần đúng theo email (pg_trgm), cursor pagination (index updated_at, id).
+   * Danh sách user: search gần đúng theo userName (pg_trgm), cursor pagination (index updated_at, id).
    */
   async findAll(options: ListUsersOptionsDto = {}): Promise<ListUsersResultDto> {
     const limit = Math.min(
@@ -51,7 +54,7 @@ export class UsersService {
     );
 
     const qb = this.userRepo.createQueryBuilder('u');
-    addTrgmSearch(qb, 'u', 'email', options.search, 'userSearchTerm');
+    addTrgmSearch(qb, 'u', 'userName', options.search, 'userSearchTerm');
     addCursorPagination(qb, {
       alias: 'u',
       tableName: 'users',

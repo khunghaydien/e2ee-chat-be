@@ -11,7 +11,7 @@ export class UserEntity {
     @Column({ type: 'varchar', length: 255, name: 'password', nullable: false })
     password: string;
 
-    @Column({ type: 'varchar', length: 255, name: 'public_key', nullable: false, unique: true })
+    @Column({ type: 'text', name: 'public_key', nullable: false, unique: true })
     publicKey: string;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp', default: () => 'now()' })

@@ -1,7 +1,6 @@
-import { Entity, Column, Index, DeleteDateColumn, UpdateDateColumn, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, Column, DeleteDateColumn, UpdateDateColumn, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('conversation_participants')
-@Index(['conversationId', 'userId'], { unique: true })
 export class ConversationParticipantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

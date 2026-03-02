@@ -5,13 +5,8 @@ import {
   UpdateDateColumn,
   Column,
   Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
 } from 'typeorm';
-import { ConversationEntity } from './conversations.entity';
 
-@Index('idx_messages_conv_created_id', ['conversationId', 'createdAt', 'id'])
 @Entity('messages')
 export class MessageEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -19,10 +14,6 @@ export class MessageEntity {
 
   @Column({ type: 'uuid', name: 'conversation_id', nullable: false })
   conversationId: string;
-
-  @ManyToOne(() => ConversationEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'conversation_id' })
-  conversation: ConversationEntity;
 
   @Column({ type: 'uuid', name: 'sender_id', nullable: false })
   senderId: string;
@@ -38,5 +29,4 @@ export class MessageEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt: Date | null;
-  
 }

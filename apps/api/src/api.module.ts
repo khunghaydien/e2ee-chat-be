@@ -3,7 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiService } from './api.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { UserEntity } from '@app/database';
+import {
+  UserEntity,
+  ConversationEntity,
+  MessageEntity,
+  ConversationParticipantEntity,
+} from '@app/database';
 import { ConversationsModule } from './conversations/conversations.module';
 import 'dotenv/config';
 
@@ -16,7 +21,12 @@ import 'dotenv/config';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_DATABASE || 'template_db',
-      entities: [UserEntity],
+      entities: [
+        UserEntity,
+        ConversationEntity,
+        MessageEntity,
+        ConversationParticipantEntity,
+      ],
       synchronize: false,
       logging: process.env.NODE_ENV !== 'production',
     }),

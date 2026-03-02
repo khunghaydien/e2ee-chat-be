@@ -1,15 +1,13 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-@Index('idx_conversations_type_updated_id', ['type', 'updatedAt', 'id'])
-@Index('idx_conversations_updated_id', ['updatedAt', 'id'])
 @Entity('conversations')
 export class ConversationEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({
-        type: 'enum',
-        enum: ['PRIVATE', 'GROUP'],
+        type: 'varchar',
+        length: 20,
         name: 'type',
         nullable: false,
         default: 'PRIVATE',
