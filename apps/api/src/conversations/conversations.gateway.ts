@@ -17,13 +17,11 @@ const CONV_ROOM_PREFIX = 'conv:';
  * Realtime layer: Socket join room theo conversationId.
  * Chỉ user trong conversation (DB xác nhận) mới join được room.
  * Emit new_message chỉ tới room conv:{conversationId}.
+ * CORS: cho phép mọi origin (origin: true).
  */
-const wsCorsOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
-  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
 @WebSocketGateway({
-  cors: { origin: wsCorsOrigins, credentials: true },
+  cors: { origin: true, credentials: true },
   namespace: '/',
 })
 export class ConversationsGateway
