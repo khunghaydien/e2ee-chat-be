@@ -12,18 +12,17 @@ import { Logger } from '@nestjs/common';
 import type { Socket } from 'socket.io';
 
 const CONV_ROOM_PREFIX = 'conv:';
+const USER_ROOM_PREFIX = 'user:';
 
 /**
  * Realtime layer: Socket join room theo conversationId.
  * Chỉ user trong conversation (DB xác nhận) mới join được room.
  * Emit new_message chỉ tới room conv:{conversationId}.
+ * CORS: cho phép mọi origin (origin: true).
  */
-const wsCorsOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
-  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
 @WebSocketGateway({
-  cors: { origin: wsCorsOrigins, credentials: true },
+  cors: { origin: true, credentials: true },
   namespace: '/',
 })
 export class ConversationsGateway
@@ -57,6 +56,7 @@ export class ConversationsGateway
       for (const cid of conversationIds) {
         client.join(`${CONV_ROOM_PREFIX}${cid}`);
       }
+      client.join(`${USER_ROOM_PREFIX}${userId}`);
 
       (client as Socket & { userId?: string }).userId = userId;
       this.logger.debug(`Client ${client.id} joined ${conversationIds.length} rooms`);
@@ -97,13 +97,28 @@ export class ConversationsGateway
   }
 
   /**
-   * Emit new_message tới room (dùng khi gửi tin qua REST POST /conversations/:id/messages).
+   * Emit new_message tới room conv:conversationId và conversation_updated tới từng user room
+   * để FE cập nhật conversation list (kể cả user chưa join room conv).
    */
-  broadcastNewMessage(
+  async broadcastNewMessage(
     conversationId: string,
     msg: { id: string; conversationId: string; senderId: string; content: string; createdAt: Date } & { sender: { id: string; userName: string; publicKey: string } },
-  ): void {
+  ): Promise<void> {
     this.server.to(`${CONV_ROOM_PREFIX}${conversationId}`).emit('new_message', msg);
+    const userIds = await this.conversationsService.getParticipantUserIds(conversationId);
+    for (const uid of userIds) {
+      this.server.to(`${USER_ROOM_PREFIX}${uid}`).emit('conversation_updated', { conversationId });
+    }
+  }
+
+  /**
+   * Khi tạo conversation mới, notify từng participant để FE refetch conversation list.
+   */
+  async notifyConversationCreated(conversationId: string): Promise<void> {
+    const userIds = await this.conversationsService.getParticipantUserIds(conversationId);
+    for (const uid of userIds) {
+      this.server.to(`${USER_ROOM_PREFIX}${uid}`).emit('conversation_updated', { conversationId });
+    }
   }
 
   /**
@@ -136,7 +151,7 @@ export class ConversationsGateway
         ...msg,
         sender: msg.sender
       };
-      this.server.to(`${CONV_ROOM_PREFIX}${conversationId}`).emit('new_message', emitPayload);
+      await this.broadcastNewMessage(conversationId, emitPayload);
       return { message: emitPayload };
     } catch (err) {
       return { error: (err as Error).message };

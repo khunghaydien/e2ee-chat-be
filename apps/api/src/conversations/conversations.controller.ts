@@ -36,6 +36,7 @@ export class ConversationsController {
     @Req() req: Request & { user: RequestUser },
   ) {
     const c = await this.conversationsService.createConversation(req.user.id, dto);
+    await this.conversationsGateway.notifyConversationCreated(c.id);
     return { id: c.id, type: c.type, title: c.title, createdAt: c.createdAt, updatedAt: c.updatedAt };
   }
 
@@ -81,7 +82,7 @@ export class ConversationsController {
       conversationId,
       dto.content,
     );
-    this.conversationsGateway.broadcastNewMessage(conversationId, msg);
+    await this.conversationsGateway.broadcastNewMessage(conversationId, msg);
     return toMessageResponse(msg);
   }
 

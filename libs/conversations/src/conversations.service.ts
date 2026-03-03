@@ -237,6 +237,17 @@ export class ConversationsService {
   }
 
   /**
+   * Lấy danh sách userId của các participant trong conversation (dùng cho gateway emit conversation_updated).
+   */
+  async getParticipantUserIds(conversationId: string): Promise<string[]> {
+    const rows = await this.participantRepo.find({
+      where: { conversationId },
+      select: ['userId'],
+    });
+    return rows.map((r) => r.userId);
+  }
+
+  /**
    * Lấy danh sách conversation_id mà user tham gia (dùng cho WebSocket join room).
    */
   async getConversationIdsByUserId(userId: string): Promise<string[]> {
